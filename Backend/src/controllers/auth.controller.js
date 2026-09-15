@@ -110,4 +110,22 @@ async function logoutUser(_req, res) {
   return res.status(200).json({ message: "User logged out successfully" });
 }
 
-export { registerUser, loginUser, logoutUser };
+async function checkUsername(req, res) {
+  const username = req.query.username?.trim();
+  if (!username || username.length < 3) {
+    return res.status(400).json({ message: "Username must be at least 3 characters" });
+  }
+
+  const user = await userModel.exists({ username });
+  return res.status(200).json({ available: !user });
+}
+
+async function getCurrentUser(req, res) {
+  const user = await userModel.findById(req.user.id).select("username email type createdAt");
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  return res.status(200).json({ user });
+}
+
+export { registerUser, loginUser, logoutUser, checkUsername, getCurrentUser };

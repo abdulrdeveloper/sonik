@@ -39,6 +39,14 @@ async function createAlbum(req, res) {
       .json({ message: "Title, release date, and musics are required" });
   }
 
+  const ownedMusicCount = await musicModel.countDocuments({
+    _id: { $in: musics },
+    artist: req.user.id,
+  });
+  if (ownedMusicCount !== musics.length) {
+    return res.status(403).json({ message: "Albums can only include your own songs" });
+  }
+
   const album = await albumModel.create({
     title,
     musics,
@@ -62,7 +70,7 @@ async function createAlbum(req, res) {
 async function getAllMusic(req, res) {
   try {
     const page = Math.max(Number(req.query.page) || 1, 1);
-    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 1000);
     const skip = (page - 1) * limit;
 
     const [musics, total] = await Promise.all([
@@ -88,6 +96,23 @@ async function getAllMusic(req, res) {
   } catch (error) {
     console.error("Error fetching music:", error);
     return res.status(500).json({ message: "Failed to fetch music" });
+  }
+}
+
+async function getMyMusic(req, res) {
+  try {
+    const musics = await musicModel
+      .find({ artist: req.user.id })
+      .sort({ _id: -1 })
+      .populate("artist", "username");
+
+    return res.status(200).json({
+      message: "Artist music fetched successfully",
+      musics,
+    });
+  } catch (error) {
+    console.error("Error fetching artist music:", error);
+    return res.status(500).json({ message: "Failed to fetch artist music" });
   }
 }
 
@@ -123,4 +148,4 @@ async function getAlbumById(req, res) {
   }
 };
 
-export { createMusic, createAlbum, getAllMusic, getAllAlbums, getAlbumById };
+export { createMusic, createAlbum, getAllMusic, getMyMusic, getAllAlbums, getAlbumById };

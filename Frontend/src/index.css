@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "DM Serif Display", Georgia, serif;
+  --color-cream: #f5f2e9;
+  --color-paper: #fbfaf5;
+  --color-ink: #1c2824;
+  --color-sage: #6f7d70;
+  --color-moss: #8eac4d;
+  --color-lime: #c9e86a;
+  --color-coral: #e36d52;
+  --color-line: #dedfd3;
+}
+
+:root {
+  color: #1c2824;
+  background: #f5f2e9;
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background: #f5f2e9;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+button,
+a,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 3px solid #8eac4d;
+  outline-offset: 3px;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+::selection {
+  background: #c9e86a;
+  color: #1c2824;
+}
