@@ -1,58 +1,78 @@
 # Contributing to Sonik
 
-Thanks for contributing to Sonik.
+Thank you for helping improve Sonik. Contributions should be focused, testable, and consistent with the existing frontend and backend structure.
 
-## Development Setup
+## Before you start
 
-1. Fork or clone the repository.
-2. Install backend dependencies:
+1. Read the [Code of Conduct](./CODE_OF_CONDUCT.md).
+2. Read the [Security Policy](./SECURITY.md).
+3. Search existing issues and pull requests before opening a new one.
+4. For larger changes, open an issue first to discuss the proposed direction.
 
-   ```bash
-   cd Backend
-   pnpm install
-   ```
-
-3. Copy `Backend/.env.example` to `Backend/.env` and add local values.
-4. Start the backend:
-
-   ```bash
-   pnpm dev
-   ```
-
-## Workflow
-
-- Create a focused branch for each feature or fix.
-- Keep changes small and related to the issue.
-- Follow the existing ES module style and naming conventions.
-- Do not commit secrets, `.env` files, uploaded media, or generated dependencies.
-- Update the README when an API contract or setup step changes.
-
-## Before Opening a Pull Request
-
-Run syntax checks for changed JavaScript files:
+## Development setup
 
 ```bash
-node --check path/to/changed-file.js
+git clone <repository-url>
+cd sonik-app
+
+cd Backend
+pnpm install
+cp .env.example .env
+
+cd ../Frontend
+pnpm install
+cp .env.example .env
 ```
 
-Then test the affected API flow in Postman, including the relevant validation and unauthorized cases.
+Never commit either `.env` file or real credentials.
 
-## Commit Guidance
+## Project conventions
 
-Use concise commit messages that describe the change, for example:
+- Keep frontend pages in `Frontend/src/pages/`.
+- Keep feature-specific landing code under `Frontend/src/pages/landing/`.
+- Keep genuinely reused UI in `Frontend/src/components/`.
+- Keep API configuration in `Frontend/src/config/api.js`.
+- Preserve the existing React, Vite, Tailwind, and ES module conventions.
+- Keep API behavior and authentication cookie handling backward-compatible unless the change explicitly requires otherwise.
+- Avoid unrelated formatting or refactoring in the same pull request.
 
-```text
-Add paginated music listing
-Fix album detail lookup
+## Testing changes
+
+Run the frontend checks:
+
+```bash
+cd Frontend
+pnpm build
+pnpm lint
 ```
 
-## Pull Requests
+Run backend syntax checks for changed JavaScript files:
+
+```bash
+node --check Backend/server.js
+node --check Backend/src/app.js
+```
+
+For API changes, test successful, validation, unauthorized, and error responses. For UI changes, test the affected route on desktop and mobile viewport sizes.
+
+## Pull requests
 
 A pull request should include:
 
-- A short description of the change
-- The API routes or user flows affected
-- Testing performed
-- Any setup or environment changes
+- A clear summary of the change.
+- The user flow, API route, or component affected.
+- Testing performed and its result.
+- Any environment variable, migration, or deployment changes.
+- Screenshots or a short recording for visual changes when useful.
 
-Please avoid unrelated formatting or refactoring in the same pull request.
+Keep pull requests focused and explain known limitations or follow-up work.
+
+## Commit messages
+
+Use concise, imperative commit messages, for example:
+
+```text
+Add artist album listing
+Fix login error handling
+Update Render deployment notes
+```
