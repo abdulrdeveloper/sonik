@@ -7,7 +7,11 @@ import 'dotenv/config';
 const app = express();
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin === "http://localhost:5173" || origin === "http://127.0.0.1:5173") {
+  const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173,http://127.0.0.1:5173")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");

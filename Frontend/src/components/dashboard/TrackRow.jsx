@@ -1,0 +1,6 @@
+import { Heart, Play } from "lucide-react";
+import CoverArt from "../music/CoverArt";
+
+export default function TrackRow({ track, index, onPlay, saved, onToggleSaved }) {
+  return <div className="group flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-cream sm:px-3"><span className="w-5 text-center text-xs text-sage group-hover:hidden">{String(index + 1).padStart(2, "0")}</span><button className="hidden w-5 text-center text-ink group-hover:block" aria-label={`Play ${track.title}`} onClick={() => onPlay(track)}><Play size={14} fill="currentColor" /></button><CoverArt src={track.cover} alt="" className="h-12 w-12 rounded-lg" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{track.title}</p><p className="truncate text-xs text-sage">{track.artist} · {track.album}</p></div><span className="hidden text-xs text-sage sm:block">{track.time}</span><button className={`rounded-full p-2 ${saved ? "text-coral" : "text-sage"} hover:bg-paper hover:text-ink`} aria-label={saved ? `Remove ${track.title} from library` : `Save ${track.title} to library`} onClick={() => onToggleSaved(track)}><Heart size={17} fill={saved ? "currentColor" : "none"} /></button></div>;
+}
