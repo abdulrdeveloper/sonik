@@ -1,48 +1,31 @@
 # Sonik
 
-Sonik is a full-stack music streaming SaaS experience for listeners and independent artists. It combines a polished React dashboard with a protected Express API for authentication, music publishing, album creation, catalogue discovery, personal libraries, and audio playback.
+Sonik is a full-stack music platform for listeners and independent artists. Listeners can discover music, browse albums, save tracks, and play audio. Artists can publish tracks, create albums, and manage their catalogue.
 
-## Highlights
+## Features
 
-### Listener experience
+### Listeners
 
-- Register and sign in with cookie-based authentication.
-- Browse the authenticated music catalogue.
-- Discover albums from every artist.
-- Open an album and play its songs individually or as a collection.
-- Save and remove songs from a personal browser library.
-- Use play, pause, previous, next, repeat, progress, and close controls.
+- Cookie-based registration and login.
+- Browse published tracks and albums.
+- Search the music catalogue.
+- Save tracks to a browser-based personal library.
+- Play, pause, seek, repeat, and skip tracks.
 
-### Artist experience
+### Artists
 
-- Publish audio tracks to the catalogue.
-- View personal releases and the complete catalogue.
-- Create albums from owned songs.
-- Publish album metadata and release dates.
-- Play and save tracks from the artist dashboard.
+- Register as a listener or artist.
+- Upload audio releases.
+- Create albums from owned tracks.
+- View published tracks and artist albums.
+- Manage uploads without leaving the current dashboard section.
 
-## Technology stack
+## Technology
 
-### Frontend
+- **Frontend:** React, Vite, React Router, Tailwind CSS, Lucide React, HTML Audio API.
+- **Backend:** Node.js, Express, MongoDB, Mongoose, JWT cookies, bcryptjs, Multer, ImageKit, dotenv.
 
-- React 18
-- Vite 6
-- Tailwind CSS 4
-- Lucide React icons
-- Browser HTML audio API
-
-### Backend
-
-- Node.js with ES modules
-- Express 5
-- MongoDB with Mongoose
-- JWT authentication stored in HTTP-only cookies
-- bcryptjs password hashing
-- Multer multipart audio uploads
-- ImageKit hosted music files
-- dotenv environment configuration
-
-## Project structure
+## Repository structure
 
 ```text
 sonik-app/
@@ -58,27 +41,38 @@ sonik-app/
 │       ├── services/
 │       └── app.js
 ├── Frontend/
+│   ├── .env.example
 │   ├── package.json
-│   ├── public/
 │   └── src/
 │       ├── App.jsx
+│       ├── config/
+│       ├── components/
+│       │   ├── dashboard/
+│       │   ├── music/
+│       │   └── ui/
+│       ├── data/
+│       ├── pages/
+│       │   ├── auth/
+│       │   └── landing/
 │       ├── index.css
 │       └── main.jsx
 ├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
 ├── LICENSE
+├── SECURITY.md
 └── README.md
 ```
 
 ## Requirements
 
-- Node.js 18 or newer
-- pnpm
-- MongoDB database
-- ImageKit account with a private key
+- Node.js 18 or newer.
+- pnpm.
+- MongoDB database.
+- ImageKit account and private key for audio storage.
 
 ## Local setup
 
-Install dependencies independently for each application:
+Clone the repository and install dependencies independently:
 
 ```bash
 git clone <repository-url>
@@ -100,26 +94,41 @@ cd Backend
 cp .env.example .env
 ```
 
-Set each value:
+Set the required values:
 
 ```env
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_long_random_secret
 IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
+NODE_ENV=development
+CLIENT_ORIGIN=http://localhost:5173
 ```
 
-Never commit `.env` or private credentials.
+### Configure the frontend
 
-### Start the application
+Create `Frontend/.env` from the example:
 
-Run the backend:
+```bash
+cd ../Frontend
+cp .env.example .env
+```
+
+For local development, use:
+
+```env
+VITE_API_BASE_URL=http://localhost:3000
+```
+
+The frontend falls back to `http://localhost:3000` when this value is missing. Frontend variables are public at build time; never place secrets in them.
+
+### Start locally
+
+Run the backend in one terminal:
 
 ```bash
 cd Backend
 pnpm dev
 ```
-
-The API runs at `http://localhost:3000`.
 
 Run the frontend in a second terminal:
 
@@ -128,21 +137,34 @@ cd Frontend
 pnpm dev
 ```
 
-The Vite server runs at `http://localhost:5173`.
+Local URLs:
 
-The frontend currently uses `http://localhost:3000` as its API base URL. The backend CORS configuration allows the local Vite origins `localhost:5173` and `127.0.0.1:5173`.
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:3000`
+
+## Frontend routes
+
+| Route | Page |
+| --- | --- |
+| `/` | Landing page |
+| `/login` | Login |
+| `/signup` | Signup |
+| `/dashboard` | Listener dashboard |
+| `/artist` | Artist dashboard |
+
+Routing is handled by React Router. The API base URL is centralized in `Frontend/src/config/api.js`.
 
 ## API overview
 
-Protected endpoints require the authenticated HTTP-only JWT cookie.
+Protected endpoints require the HTTP-only JWT cookie.
 
 ### Authentication
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | `POST` | `/api/auth/register` | Register a listener or artist |
-| `POST` | `/api/auth/login` | Sign in |
-| `POST` | `/api/auth/logout` | Clear the session cookie |
+| `POST` | `/api/auth/login` | Create a login session |
+| `POST` | `/api/auth/logout` | Clear the login cookie |
 | `GET` | `/api/auth/me` | Get the current user |
 | `GET` | `/api/auth/check-username` | Check username availability |
 
@@ -152,53 +174,77 @@ Protected endpoints require the authenticated HTTP-only JWT cookie.
 | --- | --- | --- |
 | `GET` | `/api/music?page=1&limit=20` | Browse published music |
 | `GET` | `/api/music/mine` | List the current artist's tracks |
-| `POST` | `/api/music/upload` | Upload a track as an artist |
-| `POST` | `/api/music/album` | Create an album from owned tracks |
-| `GET` | `/api/music/albums` | List all published albums |
-| `GET` | `/api/music/albums/:albumId` | Get an album and its songs |
+| `POST` | `/api/music/upload` | Upload an artist track |
+| `POST` | `/api/music/album` | Create an album |
+| `GET` | `/api/music/albums` | List published albums |
+| `GET` | `/api/music/albums/:albumId` | Get an album and its tracks |
 
-Track uploads use multipart form data:
+Track uploads use multipart form data with `title` and `music` fields. Album creation uses JSON with `title`, `releaseDate`, and a non-empty `musics` array of owned track IDs.
 
-- `title`: track title
-- `music`: audio file
+## Render deployment
 
-Album creation expects JSON containing `title`, `releaseDate`, and a non-empty `musics` array of track IDs owned by the current artist.
+Deploy the backend as a Render Web Service:
 
-## Available scripts
+- Root directory: `Backend`
+- Build command: `pnpm install`
+- Start command: `pnpm start`
+
+Backend environment variables:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_long_random_secret
+IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
+NODE_ENV=production
+CLIENT_ORIGIN=https://your-frontend-service.onrender.com
+```
+
+Deploy the frontend as a Render Static Site:
+
+- Root directory: `Frontend`
+- Build command: `pnpm build`
+- Publish directory: `dist`
+
+Frontend environment variable:
+
+```env
+VITE_API_BASE_URL=https://your-backend-service.onrender.com
+```
+
+After changing a `VITE_` variable, redeploy the frontend because Vite injects it during the build. Configure the static host to serve `index.html` for unknown routes so React Router routes work after refresh.
+
+## Scripts
 
 ### Frontend
 
 ```bash
-pnpm dev       # Start Vite development server
-pnpm build     # Create a production build
-pnpm lint      # Run the configured Vite lint-mode build
+pnpm dev
+pnpm build
+pnpm lint
 ```
 
 ### Backend
 
 ```bash
-pnpm dev       # Start the API with Node watch mode
-pnpm start     # Start the API normally
+pnpm dev
+pnpm start
 ```
 
-## Data and security notes
+## Security notes
 
 - Passwords are hashed before storage.
-- Authentication uses an HTTP-only JWT cookie and credentialed CORS.
-- Artist-only operations are protected by artist middleware.
-- Album creation validates that every selected track belongs to the authenticated artist.
-- Audio files are stored through ImageKit; the database stores hosted URIs and metadata.
-- Saved libraries currently use browser `localStorage` and are not shared between devices.
+- Authentication uses an HTTP-only JWT cookie.
+- Credentialed CORS is restricted through `CLIENT_ORIGIN`.
+- Artist-only operations use authorization middleware.
+- Never commit `.env` files, database credentials, JWT secrets, ImageKit keys, or uploaded media.
+- Saved libraries currently use browser `localStorage` and are not synchronized between devices.
 
 ## Contributing
 
-Please read [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) before participating.
-
-1. Create a focused branch.
-2. Keep changes scoped and consistent with the existing architecture.
-3. Run the relevant build or checks locally.
-4. Open a pull request describing the behavior changed and how it was tested.
+Read [CONTRIBUTING.md](./CONTRIBUTING.md), [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md), and [SECURITY.md](./SECURITY.md) before contributing.
 
 ## License
 
-Sonik is licensed under the MIT License. See [LICENSE](./LICENSE).
+Sonik is available under the MIT License. See [LICENSE](./LICENSE).
+
+Maintained by [Abdul Rahman](https://abdulrdeveloper.me).
