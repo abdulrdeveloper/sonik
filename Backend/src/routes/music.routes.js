@@ -6,6 +6,9 @@ import { createMusic, createAlbum, getAllMusic, getMyMusic, getAllAlbums ,getAlb
 
 const upload = multer({
     storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 15 * 1024 * 1024,
+    },
 });
 const musicRoutes = express.Router();
 musicRoutes.post('/upload', verifyArtist, upload.single('music'), createMusic);
