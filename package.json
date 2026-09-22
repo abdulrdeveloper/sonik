@@ -1,0 +1,11 @@
+{
+  "name": "sonik",
+  "private": true,
+  "scripts": {
+    "postinstall": "corepack enable && corepack pnpm@11.8.0 install --dir Backend --frozen-lockfile",
+    "start": "node Backend/server.js"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}
